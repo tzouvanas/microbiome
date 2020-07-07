@@ -1,0 +1,10 @@
+- Should i generate barcodes from fastq files or use the pseudo ones ? 
+
+- log.txt from imngs analysis shows a very high percentage of sequences not merged due to > 5 diffs. Is this normal ? 
+
+- Current sequences contain a barcode of 10 or 12 bases ? 
+
+- Is trimming referring to sequences with or without barcodes ? 
+
+
+
