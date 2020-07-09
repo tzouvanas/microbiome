@@ -8,6 +8,6 @@
 
 - 82.12 sample size is minimal. Should it be included in analysis ? 
 
-- F, R seem to be inversed. Quality of R is always better than quality of F
+- what is the lenght of V4-V6 ? min, max considerations for Usearch
 
 
