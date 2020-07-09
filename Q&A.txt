@@ -6,5 +6,8 @@
 
 - Is trimming referring to sequences with or without barcodes ? 
 
+- 82.12 sample size is minimal. Should it be included in analysis ? 
+
+- F, R seem to be inversed. Quality of R is always better than quality of F
 
 
