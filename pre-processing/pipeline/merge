@@ -1,0 +1,5 @@
+#!/bin/bash
+$usearch -fastq_mergepairs ../data/*_R1.fastq -relabel @ \
+-fastq_maxdiffs 5 \
+-fastq_minmergelen 250 -fastq_maxmergelen 450 \
+-fastqout ../out/merged.fq
