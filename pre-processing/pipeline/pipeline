@@ -1,5 +1,5 @@
 #!/bin/bash
-rm -f ../out/*
+rm -f ~/thesis/out/*
 
 export usearch=~/thesis/bin/usearch
 ./merge
