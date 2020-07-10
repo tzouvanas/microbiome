@@ -2,4 +2,4 @@
 $usearch -fastq_mergepairs ~/thesis/data/*_R1.fastq -relabel @ \
 -fastq_maxdiffs 5 \
 -fastq_minmergelen 250 -fastq_maxmergelen 450 \
--fastqout ~thesis/out/merged.fq
+-fastqout ~/thesis/out/merged.fq
