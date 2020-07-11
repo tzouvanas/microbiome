@@ -13,14 +13,21 @@ kmedians.medians.of.columns <- function(X){
   return(unlist(medians))
 }
   
-kmedians.init.centroids <- function(nr_of_dimensions, nr_of_centroids){
+kmedians.init.centroids <- function(X, nr_of_centroids){
+  
   centroids <- list()
-  for (i in 1:nr_of_centroids)
-  {
-    centroids[[i]] <- floor(runif(nr_of_dimensions, min=0, max=500))
+  nr_of_dimensions = ncol(X)
+  
+  random_indexes <- sample.int(nrow(X), nr_of_centroids)
+  
+  for (i in 1:nr_of_centroids){
+    index = random_indexes[i]
+    centroids[[i]] <- as.vector(X[index, ])
   }
+  
   return (centroids)
 }
+
 
 kmedians.nearest.centroid <- function(centroids, data_vector){
   
@@ -75,13 +82,15 @@ kmedians.update.centroids <- function(X, centroids, centroid_allocations){
 
 kmedians <- function(X, nr_of_clusters, max_iterations = 100){
   
-  centroids <- kmedians.init.centroids(nr_of_dimensions = ncol(X), nr_of_centroids = nr_of_clusters)
+  max_X = max(X)
+  min_X = min(X)
+  centroids <- kmedians.init.centroids(X, nr_of_clusters)
 
   for (i in 1:max_iterations){
 
     centroid_allocations = kmedians.allocate.to.centroids(X, centroids)
     new_centroids <- kmedians.update.centroids(X, centroids, centroid_allocations)
-    
+
     no_change_in_centroids = vectors.are.equal(unlist(centroids), unlist(new_centroids))
     if (no_change_in_centroids) { break }
 
