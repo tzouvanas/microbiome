@@ -18,5 +18,7 @@ timeSlots <- lapply(row_names, function(i){substr(i, start = 5, stop = 7)})
 distance_matrix <- dist(t(otu_matrix), method = 'manhattan', diag = T, upper = T)
 
 source('k-medians.r')
-centroid_allocations <- kmedians(t(otu_matrix), 3)
+centroid_allocations <- kmedians(X = t(otu_matrix), nr_of_clusters = 3, init_method = 'k-means')
 plot(centroid_allocations)
+
+

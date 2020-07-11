@@ -12,8 +12,9 @@ kmedians.medians.of.columns <- function(X){
   
   return(unlist(medians))
 }
-  
-kmedians.init.centroids <- function(X, nr_of_centroids){
+
+
+kmedians.init.centroids.with.random.selection <- function(X, nr_of_centroids){
   
   centroids <- list()
   nr_of_dimensions = ncol(X)
@@ -26,6 +27,28 @@ kmedians.init.centroids <- function(X, nr_of_centroids){
   }
   
   return (centroids)
+}
+
+kmedians.init.centroids.with.kmeans <- function(X, nr_of_centroids){
+
+  centroids <- list()
+  nr_of_dimensions = ncol(X)  
+  kmeans_result <- kmeans(X, nr_of_centroids, nstart = 25)
+  kmeans_centroids <- as.matrix(kmeans_result["centers"][[1]])
+  
+  for (i in 1:nrow(kmeans_centroids)){
+    centroids[[i]] <- as.vector(kmeans_centroids[i, ])
+  }
+  
+  return (centroids)
+}
+
+kmedians.init.centroids <- function(X, nr_of_centroids, type){
+  
+  if (type == 'k-means')
+    return(kmedians.init.centroids.with.kmeans(X, nr_of_centroids))
+    
+  return(kmedians.init.centroids.with.random.selection(X, nr_of_centroids))
 }
 
 
@@ -80,16 +103,17 @@ kmedians.update.centroids <- function(X, centroids, centroid_allocations){
   return(new_centroids)
 }
 
-kmedians <- function(X, nr_of_clusters, max_iterations = 100){
+kmedians <- function(X, nr_of_clusters, max_iterations = 100, init_method = 'kmeans'){
   
   max_X = max(X)
   min_X = min(X)
-  centroids <- kmedians.init.centroids(X, nr_of_clusters)
+  centroids <- kmedians.init.centroids(X, nr_of_clusters, init_method)
 
   for (i in 1:max_iterations){
 
     centroid_allocations = kmedians.allocate.to.centroids(X, centroids)
     new_centroids <- kmedians.update.centroids(X, centroids, centroid_allocations)
+    print('Update centroids')
 
     no_change_in_centroids = vectors.are.equal(unlist(centroids), unlist(new_centroids))
     if (no_change_in_centroids) { break }

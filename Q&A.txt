@@ -10,4 +10,6 @@
 
 - what is the lenght of V4-V6 ? min, max considerations for Usearch
 
+- kmeans for initiating k-median centroids. Is this OK ?
+
 

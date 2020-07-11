@@ -1,6 +1,6 @@
-#OTU	A	B	C
-Otu1	7	4	1
-Otu2	7	4	1
-Otu3	7	4	1
-Otu4	7	4	1
-Otu5	7	4	1
+#OTU	A	B	C	D
+Otu1	7	4	1	6
+Otu2	7	4	1	6
+Otu3	7	4	1	6
+Otu4	7	4	1	6
+Otu5	7	4	1	6
