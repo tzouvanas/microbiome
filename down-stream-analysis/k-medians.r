@@ -13,7 +13,6 @@ kmedians.medians.of.columns <- function(X){
   return(unlist(medians))
 }
 
-
 kmedians.init.centroids.with.random.selection <- function(X, nr_of_centroids){
   
   centroids <- list()
@@ -50,7 +49,6 @@ kmedians.init.centroids <- function(X, nr_of_centroids, type){
     
   return(kmedians.init.centroids.with.random.selection(X, nr_of_centroids))
 }
-
 
 kmedians.nearest.centroid <- function(centroids, data_vector){
   

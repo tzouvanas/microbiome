@@ -5,20 +5,28 @@ cat("\014")
 rm(list=ls(all=TRUE))
 
 # read otu table
-otu_filename = 'test-otu-table.txt'
-otu_table <- read.delim2(paste("./data/", otu_filename, sep = ''), header=T, sep="\t", row.names = 1)
-otu_matrix <- as.matrix(otu_table)
+otu_filename <- 'otu-table.txt'
+otu_relative_path <- paste("./data/", otu_filename, sep = '')
+otu_table <- t(read.delim2(otu_relative_path, header=T, sep="\t", row.names = 1))
 
 # extract sample, time-slots
-row_names <- row.names(otu_table)
-samples <- lapply(row_names, function(i){substr(i, start = 2, stop = 4)})
-timeSlots <- lapply(row_names, function(i){substr(i, start = 5, stop = 7)})
+sample_names <- rownames(otu_table)
+samples <- lapply(sample_names, function(i){substr(i, start = 2, stop = 4)})
+timeSlots <- lapply(sample_names, function(i){substr(i, start = 5, stop = 7)})
 
-# calculate distances between samples
-distance_matrix <- dist(t(otu_matrix), method = 'manhattan', diag = T, upper = T)
-
+# classify samples with k-medians
 source('k-medians.r')
-centroid_allocations <- kmedians(X = t(otu_matrix), nr_of_clusters = 3, init_method = 'k-means')
-plot(centroid_allocations)
+centroid_allocations <- as.vector(kmedians(otu_table, nr_of_clusters = 3, init_method = 'k-means'))
 
+# run mds on distance data, projecting to 2 dimensions
+distances = as.matrix(dist(otu_table, method = "manhattan"))
+scaled_distances <- cmdscale(distances, eig = F, k = 2)
+x <- scaled_distances[, 1]
+y <- scaled_distances[, 2]
+
+library(plotly)
+plot_ly(data = data.frame(sample_names), x = x, y = y,
+        color = centroid_allocations, colors = c('red', 'green', 'blue'),
+        type = "scatter",
+        mode = "markers")
 
