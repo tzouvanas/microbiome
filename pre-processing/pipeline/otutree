@@ -1,0 +1,2 @@
+#!/bin/bash
+$usearch -cluster_agg ~/thesis/out/otus.fa -treeout ~/thesis/out/otus-tree.txt
