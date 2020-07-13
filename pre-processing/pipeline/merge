@@ -1,4 +1,6 @@
 #!/bin/bash
+$usearch -fastq_mergepairs ~/thesis/data/*_R1.fastq -fastq_merge_maxee 1 -relabel @ -report ~/thesis/out/merge_test.log
+
 $usearch -fastq_mergepairs ~/thesis/data/*_R1.fastq -relabel @ \
 -fastq_maxdiffs 10 \
 -fastq_minmergelen 440 -fastq_maxmergelen 470 \
