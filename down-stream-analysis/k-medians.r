@@ -6,8 +6,7 @@ kmedians.medians.of.columns <- function(X){
   nr_of_columns <- ncol(X)
 
   for (i in 1:nr_of_columns){
-    median_of_column_i = median(X[,i], na.rm = F)
-    medians[[i]] = median_of_column_i
+    medians[[i]] = median(X[,i], na.rm = F)
   }
   
   return(unlist(medians))

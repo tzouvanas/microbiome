@@ -4,36 +4,36 @@ cat("\014")
 # cleanup environment variables
 rm(list=ls(all=TRUE))
 
+# current directory
+library(rstudioapi)
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 # read otu table
 otu_filename <- 'otu-table.txt'
 otu_relative_path <- paste("./data/", otu_filename, sep = '')
-otu_table <- t(read.delim2(otu_relative_path, header=T, sep="\t", row.names = 1))
+otu_table <- read.delim2(otu_relative_path, header=T, sep="\t", row.names = 1)
+sample_table <- t(otu_table)
 
-source('data.helper.r')
-mature_otu_table <- all.records.of.time.slot(otu_table, "24")
-
-# extract sample, time-slots
-sample_names <- rownames(otu_table)
+# extract sample, months
+sample_names <- rownames(sample_table)
 samples <- unlist(lapply(sample_names, function(i){substr(i, start = 2, stop = 4)}))
-timeSlots <- unlist(lapply(sample_names, function(i){substr(i, start = 5, stop = 7)}))
+months <- unlist(lapply(sample_names, function(i){substr(i, start = 5, stop = 7)}))
 
 # classify samples with k-medians
 source('k-medians.r')
-k_medians_allocations <- as.vector(kmedians(otu_table, nr_of_clusters = 3, init_method = ''))
-#k_means_allocations <- as.vector(kmeans(otu_table, 3)$cluster)
-# plot(k_means_allocations)
-# plot(k_medians_allocations)
-# plot(k_medians_allocations - k_means_allocations)
+k_medians_allocations <- as.vector(kmedians(sample_table, nr_of_clusters = 3, init_method = ''))
+plot(k_medians_allocations)
 
 # run mds on distance data, projecting to 2 dimensions
-distances = as.matrix(dist(otu_table, method = "manhattan"))
+distances = as.matrix(vegdist(sample_table, method = "bray"))
 scaled_distances <- cmdscale(distances, eig = F, k = 2)
 x <- scaled_distances[, 1]
 y <- scaled_distances[, 2]
 
+# plot scaled distances
 library(plotly)
 plot_ly(data = data.frame(sample_names), x = x, y = y,
         #color = centroid_allocations, colors = c('red', 'green', 'blue'),
-        color = timeSlots, colors = c('red', 'green', 'blue', 'orange', 'black', 'purple', 'cyan'),
+        color = months, colors = c('red', 'green', 'blue', 'orange', 'black', 'purple', 'cyan'),
         type = "scatter",
         mode = "markers")
