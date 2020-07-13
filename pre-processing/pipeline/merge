@@ -3,3 +3,7 @@ $usearch -fastq_mergepairs ~/thesis/data/*_R1.fastq -relabel @ \
 -fastq_maxdiffs 5 \
 -fastq_minmergelen 250 -fastq_maxmergelen 450 \
 -fastqout ~/thesis/out/merged.fq
+
+# Strip primers (V4F is 19, V4R is 20)
+$usearch -fastx_truncate ~/thesis/out/merged.fq -stripleft 19 -stripright 20 \
+  -fastqout ~/thesis/out/stripped.fq
