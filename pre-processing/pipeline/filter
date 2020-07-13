@@ -1,3 +1,3 @@
 #!/bin/bash
-$usearch -fastq_filter ~/thesis/out/striped.fq -fastq_maxee 1.0 \
+$usearch -fastq_filter ~/thesis/out/stripped.fq -fastq_maxee 1.0 \
 -fastaout ~/thesis/out/filtered.fa
