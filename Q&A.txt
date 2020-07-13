@@ -12,4 +12,15 @@
 
 - kmeans for initiating k-median centroids. Is this OK ?
 
+- imngs crashes when deleting a scheduled job.
+
+- how are we going to validate my work ? 
+
+- make step by step guide, so that i do not wonder around.
+
+- OTUs do not map with SILVA. Is this an indication of invalid OTUs ? 
+
+Sample 115 does not have data for month: 12. Should it be used ?
+
+
 
