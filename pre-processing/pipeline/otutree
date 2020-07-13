@@ -1,2 +1,5 @@
 #!/bin/bash
-$usearch -cluster_aggd ~/thesis/out/otus.fa -treeout ~/thesis/out/otus-tree.txt
+
+$usearch -calc_distmx ~/thesis/out/otus.fa -tabbedout ~/thesis/out/mx.txt
+
+$usearch -cluster_aggd ~/thesis/out/mx.txt -treeout ~/thesis/out/otus-tree.txt
