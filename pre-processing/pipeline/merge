@@ -1,7 +1,7 @@
 #!/bin/bash
 $usearch -fastq_mergepairs ~/thesis/data/*_R1.fastq -relabel @ \
 -fastq_maxdiffs 10 \
--fastq_minmergelen 230 -fastq_maxmergelen 270 \
+-fastq_minmergelen 440 -fastq_maxmergelen 470 \
 -fastqout ~/thesis/out/merged.fq
 
 # Strip primers (V4F is 19, V4R is 20)
