@@ -1,39 +1,39 @@
-# cleanup console
-cat("\014")  
-
-# cleanup environment variables
-rm(list=ls(all=TRUE))
-
-# current directory
-library(rstudioapi)
+# install package rstudioapi and set file path as current directory
+if (!require("rstudioapi")) { install.packages("rstudioapi", dependencies = TRUE) }
+library("rstudioapi")
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-# read otu table
-otu_filename <- 'otu-table.txt'
-otu_relative_path <- paste("./data/", otu_filename, sep = '')
-otu_table <- read.delim2(otu_relative_path, header=T, sep="\t", row.names = 1)
-sample_table <- t(otu_table)
+# install missing packages, load packages, sources
+source('environment.r')
+environment.start()
 
-# extract sample, months
-sample_names <- rownames(sample_table)
-samples <- unlist(lapply(sample_names, function(i){substr(i, start = 2, stop = 4)}))
-months <- unlist(lapply(sample_names, function(i){substr(i, start = 5, stop = 7)}))
+# load otu table and tree
+otus <- t(read.delim2(paste("data/", 'otu-table.txt', sep = ''), header=T, sep="\t", row.names = 1))
+otus_tree <- read.tree(paste("data/", 'otu-tree.txt', sep = ''))
 
-# classify samples with k-medians
-source('k-medians.r')
-k_medians_allocations <- as.vector(kmedians(sample_table, nr_of_clusters = 3, init_method = ''))
-plot(k_medians_allocations)
+# extract individuals, timepoints
+samples <- row.names(otus)
+individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)}))
+timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))
 
-# run mds on distance data, projecting to 2 dimensions
-distances = as.matrix(vegdist(sample_table, method = "bray"))
-scaled_distances <- cmdscale(distances, eig = F, k = 2)
-x <- scaled_distances[, 1]
-y <- scaled_distances[, 2]
+# execute analysis per timepoint
+timepoint_clustering_list <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
+  cluster.timepoint(otus, otus_tree, timepoint)
+})
 
-# plot scaled distances
-library(plotly)
-plot_ly(data = data.frame(sample_names), x = x, y = y,
-        #color = centroid_allocations, colors = c('red', 'green', 'blue'),
-        color = months, colors = c('red', 'green', 'blue', 'orange', 'black', 'purple', 'cyan'),
-        type = "scatter",
-        mode = "markers")
+time_series <- generate.time.series(timepoint_clustering_list, samples)
+write.table(time_series, file = paste('data/', 'time.series.txt', sep = ''))
+
+# mds nt_analysis
+#mds <- cmdscale(timepoint_clustering$distances, eig = F, k = 2)
+#otuplots.plot.timepoints(mds[, 1], mds[, 2], samples, timepoints)
+
+# nmds 
+#nmds <- metaMDS(timepoint_clustering$distances, k = 2)
+#otuplots.plot.timepoints(nmds$points[,1], nmds$points[,2], samples, timepoints)
+
+
+
+
+
+

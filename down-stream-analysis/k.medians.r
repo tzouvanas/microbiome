@@ -1,4 +1,8 @@
-source('common.r')
+source('base.r')
+
+manhattan.distance <- function(p, q){
+  return (sum(abs(p - q)))
+}
 
 kmedians.medians.of.columns <- function(X){
   
@@ -100,17 +104,15 @@ kmedians.update.centroids <- function(X, centroids, centroid_allocations){
   return(new_centroids)
 }
 
-kmedians <- function(X, nr_of_clusters, max_iterations = 100, init_method = 'kmeans'){
+kmedians <- function(X, centers, max_iterations = 100){
   
-  max_X = max(X)
-  min_X = min(X)
-  centroids <- kmedians.init.centroids(X, nr_of_clusters, init_method)
+  centroids <- kmedians.init.centroids(X, centers, 'k-means')
 
   for (i in 1:max_iterations){
 
     centroid_allocations = kmedians.allocate.to.centroids(X, centroids)
     new_centroids <- kmedians.update.centroids(X, centroids, centroid_allocations)
-    print('Update centroids')
+    print(paste('Update centroids - iteration :', i, sep = " "))
 
     no_change_in_centroids = vectors.are.equal(unlist(centroids), unlist(new_centroids))
     if (no_change_in_centroids) { break }
@@ -118,5 +120,6 @@ kmedians <- function(X, nr_of_clusters, max_iterations = 100, init_method = 'kme
     centroids = new_centroids
   }
   
+  rownames(centroid_allocations) <- row.names(X)
   return(centroid_allocations)
 }
