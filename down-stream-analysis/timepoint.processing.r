@@ -21,14 +21,14 @@ cluster.timepoint <- function(otus, otus_tree, timepoint){
     kmedoids <- pam(unifract_dist, nr_of_clusters, diss = T)
     calinski_harabasz_index <- calinhara(otus_norm, kmedoids$clustering, nr_of_clusters)
     silhouette_index <- kmedoids$silinfo$avg.width
-    list('clustering' = kmedoids$clustering, 'ch_index' = calinski_harabasz_index, 'slh_index' = silhouette_index)
+    list('clustering' = kmedoids$clustering, 'ch_benchmark' = calinski_harabasz_index, 'slh_benchmark' = silhouette_index)
   })
   
-  ch_indexes <- unlist(lapply(clustering_instances, function(instance){instance$ch_index}))
-  slh_indexes <- unlist(lapply(clustering_instances, function(instance){instance$slh_index}))
+  ch_benchmarks <- unlist(lapply(clustering_instances, function(instance){instance$ch_benchmark}))
+  slh_benchmarks <- unlist(lapply(clustering_instances, function(instance){instance$slh_benchmark}))
   
-  best_clustering_index_by_slh <- which(slh_indexes == max(slh_indexes))
-  best_clustering_index_by_ch <- which(ch_indexes == max(ch_indexes))
+  best_clustering_index_by_slh <- which(slh_benchmarks == max(slh_benchmarks))
+  best_clustering_index_by_ch <- which(ch_benchmarks == max(ch_benchmarks))
   
   best_nr_of_clusters_by_slh <- best_clustering_index_by_slh + 1
   best_nr_of_clusters_by_ch <- best_clustering_index_by_ch + 1
