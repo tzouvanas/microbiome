@@ -1,4 +1,4 @@
-cluster.timepoint <- function(otus, otus_tree, timepoint){
+cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
 
   timepoint_otus <- otus
   if (!is.null(timepoint)){
@@ -15,10 +15,14 @@ cluster.timepoint <- function(otus, otus_tree, timepoint){
   manhattan_dist <- dist(otus_norm,  method = 'manhattan', upper = T)
   euclidian_dist <- dist(otus_norm,  method = 'euclidian', upper = T)
   
+  distance <- unifract_dist
+  if (distance_type == "euclidian") {distance <- euclidian_dist}
+  if (distance_type == "manhattan") {distance <- manhattan_dist}
+  
   # cluster distances using k-medoids
   max_nr_of_clusters <- 20
   clustering_instances <- lapply(2:max_nr_of_clusters, function(nr_of_clusters){
-    kmedoids <- pam(unifract_dist, nr_of_clusters, diss = T)
+    kmedoids <- pam(distance, nr_of_clusters, diss = T)
     calinski_harabasz_index <- calinhara(otus_norm, kmedoids$clustering, nr_of_clusters)
     silhouette_index <- kmedoids$silinfo$avg.width
     list('clustering' = kmedoids$clustering, 'ch_benchmark' = calinski_harabasz_index, 'slh_benchmark' = silhouette_index)
@@ -42,7 +46,7 @@ cluster.timepoint <- function(otus, otus_tree, timepoint){
                  'best.nr.of.clusters_by_slh' = best_nr_of_clusters_by_slh,
                  'best.nr.of.clusters_by_ch' = best_nr_of_clusters_by_ch,
                  #'clustering.instances' = clustering_instances,
-                 'distances' = unifract_dist,
+                 'distances' = distance,
                  'timepoint' = timepoint)
   
   return (result)
