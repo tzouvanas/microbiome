@@ -128,3 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 down-stream-analysis/.Rhistory
+.Rproj.user
