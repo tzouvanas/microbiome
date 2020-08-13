@@ -18,19 +18,29 @@ timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}
 
 # execute analysis per timepoint
 timepoint_clustering_list <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
-  cluster.timepoint(otus, otus_tree, timepoint)
+  cluster.timepoint(otus, otus_tree, timepoint, "manhattan")
 })
 
 time_series <- generate.time.series(timepoint_clustering_list, samples)
-write.table(time_series, file = paste('data/', 'time.series.txt', sep = ''))
+write.table(time_series, file = paste('data/', 'time.series.txt'), sep = '')
 
-# mds nt_analysis
-#mds <- cmdscale(timepoint_clustering$distances, eig = F, k = 2)
-#otuplots.plot.timepoints(mds[, 1], mds[, 2], samples, timepoints)
+#########################################################################################################
+timepoint <- "24"
+timepoint_clustering <- cluster.timepoint(otus, otus_tree, timepoint, "unifrac")
+
+timepoint_samples <- samples
+if (!is.null(timepoint)) timepoint_samples <- samples[substr(samples, start = 5, stop = 7) == timepoint]
+
+timepoint_timepoints <- timepoints
+if (!is.null(timepoint)) timepoint_timepoints <- NULL
+
+# mds
+mds <- cmdscale(timepoint_clustering$distances, eig = F, k = 2)
+otuplots.plot.timepoints(mds[, 1], mds[, 2], timepoint_samples, timepoint_timepoints)
 
 # nmds 
-#nmds <- metaMDS(timepoint_clustering$distances, k = 2)
-#otuplots.plot.timepoints(nmds$points[,1], nmds$points[,2], samples, timepoints)
+nmds <- metaMDS(timepoint_clustering$distances, k = 2)
+otuplots.plot.timepoints(nmds$points[,1], nmds$points[,2], timepoint_samples, timepoint_timepoints)
 
 
 
