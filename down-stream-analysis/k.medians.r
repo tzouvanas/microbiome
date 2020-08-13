@@ -1,9 +1,11 @@
 source('base.r')
 
+# calculate manhattan distance between vectors p, q
 manhattan.distance <- function(p, q){
   return (sum(abs(p - q)))
 }
 
+# calculate median of input vector
 kmedians.medians.of.columns <- function(X){
   
   medians = list()
@@ -16,6 +18,7 @@ kmedians.medians.of.columns <- function(X){
   return(unlist(medians))
 }
 
+# initialize centroids by randomly selecting vectors from the dataset
 kmedians.init.centroids.with.random.selection <- function(X, nr_of_centroids){
   
   centroids <- list()
@@ -31,6 +34,7 @@ kmedians.init.centroids.with.random.selection <- function(X, nr_of_centroids){
   return (centroids)
 }
 
+# initialize centroids by calculating k-means clusters
 kmedians.init.centroids.with.kmeans <- function(X, nr_of_centroids){
 
   centroids <- list()
@@ -45,6 +49,7 @@ kmedians.init.centroids.with.kmeans <- function(X, nr_of_centroids){
   return (centroids)
 }
 
+# initialize centroids
 kmedians.init.centroids <- function(X, nr_of_centroids, type){
   
   if (type == 'k-means')
@@ -53,6 +58,7 @@ kmedians.init.centroids <- function(X, nr_of_centroids, type){
   return(kmedians.init.centroids.with.random.selection(X, nr_of_centroids))
 }
 
+# calculate centroid that is nearest to data_vector
 kmedians.nearest.centroid <- function(centroids, data_vector){
   
   nr_of_centroids = length(centroids)
@@ -69,6 +75,7 @@ kmedians.nearest.centroid <- function(centroids, data_vector){
   return (list(centroid_index, min_distance))
 }
 
+# allocate data vectors to centroids
 kmedians.allocate.to.centroids <- function(X, centroids){
   
   nr_of_items = nrow(X)
@@ -83,6 +90,7 @@ kmedians.allocate.to.centroids <- function(X, centroids){
   return(centroid_allocations)
 }
 
+# update centroids based on median of latest allocations
 kmedians.update.centroids <- function(X, centroids, centroid_allocations){
   
   new_centroids <- list()
@@ -104,6 +112,7 @@ kmedians.update.centroids <- function(X, centroids, centroid_allocations){
   return(new_centroids)
 }
 
+# perform kmedians clustering on input data
 kmedians <- function(X, centers, max_iterations = 100){
   
   centroids <- kmedians.init.centroids(X, centers, 'k-means')
