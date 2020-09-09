@@ -9,7 +9,7 @@ environment.start()
 
 # load otu table and tree
 otus <- t(read.delim2(paste("data/", 'otu-table.txt', sep = ''), header=T, sep="\t", row.names = 1))
-otus_tree <- read.tree(paste("data/", 'otu-tree.txt', sep = ''))
+otus.tree <- read.tree(paste("data/", 'otu-tree.txt', sep = ''))
 
 # extract individuals, timepoints
 samples <- row.names(otus)
@@ -18,20 +18,22 @@ timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}
 
 # execute analysis per timepoint
 timepoint_clustering_list <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
-  timeseries.cluster.timepoint(otus, otus_tree, timepoint, "unifrac")
+  time.series.cluster.timepoint(otus, otus.tree, timepoint, "unifrac")
 })
 
-time.series <- timeseries.generate(timepoint_clustering_list, samples)
-write.table(timeseries, file = paste('data/', 'time.series.txt'), sep = '')
+time.series <- time.series.generate(timepoint_clustering_list, samples)
+write.table(time.series, file = paste('data/', 'time.series.txt'), sep = '')
 
-time.point.list <- NULL
+time.point.list <- c("12", "24")
 transition.matrix <- markov.transition.matrix(time.series, time.point.list)
+dtmcA <- new("markovchain", transitionMatrix = transition.matrix, states = colnames(transition.matrix), name = "A") 
+plot(dtmcA)
 
 
 #########################################################################################################
 timepoint <- NULL
 distance_type <- "unifrac"
-timepoint_clustering <- time.series.cluster.timepoint(otus, otus_tree, timepoint, distance_type)
+timepoint_clustering <- time.series.cluster.timepoint(otus, otus.tree, timepoint, distance_type)
 
 timepoint_samples <- samples
 if (!is.null(timepoint)) timepoint_samples <- samples[substr(samples, start = 5, stop = 7) == timepoint]

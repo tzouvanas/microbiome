@@ -55,7 +55,7 @@ time.series.cluster.timepoint <- function(otus, otus_tree, timepoint, distance_t
   return (result)
 }
 
-timeseries.generate <- function(timepoint_clustering_list, samples){
+time.series.generate <- function(timepoint_clustering_list, samples){
   
   individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)}))
   timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))

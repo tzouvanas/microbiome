@@ -27,6 +27,7 @@ markov.transition.probability <- function(state.series, from.state, to.state){
   from.state.count <- count(timepoint.states == from.state)
   
   to.state.count <- 0
+  from.state.count.reduction <- 0
   
   for (i in 1:nrow(state.series)){
 
@@ -34,15 +35,21 @@ markov.transition.probability <- function(state.series, from.state, to.state){
     from.serie.state <- state.serie[from.timepoint]
     to.serie.state <- state.serie[to.timepoint]
     
-    is.empty <- is.null(to.serie.state) || is.null(from.serie.state) || 
-      is.na(to.serie.state) || is.na(from.serie.state)
-    
+    to.is.empty <- is.null(to.serie.state) || is.na(to.serie.state)
+    from.is.empty <- is.null(from.serie.state) || is.na(from.serie.state)
+      
+    is.empty <- to.is.empty || from.is.empty
+      
     if (!is.empty && to.serie.state == to.state && from.serie.state == from.state){
       to.state.count <- to.state.count + 1  
     }
+    
+    if (to.is.empty && !from.is.empty && from.serie.state == from.state){
+      from.state.count.reduction <- from.state.count.reduction + 1
+    }
   }
   
-  return(to.state.count / from.state.count)
+  return(to.state.count / (from.state.count - from.state.count.reduction))
 }
 
 markov.transition.matrix.for.timepoint.pair <- function(state.series, from.timepoint.states, to.timepoint.states){
@@ -110,6 +117,12 @@ markov.transition.matrix <- function(time.series, time.point.list = NULL){
       pair.transition.matrix <- markov.transition.matrix.for.timepoint.pair(state.series, from.timepoint.states, to.timepoint.states)  
       transition.matrix <- markov.merge.pair.transition.matrix(transition.matrix, pair.transition.matrix)
     }
+  }
+
+  # adjust last timepoint
+  states.of.last.timepoint <- tail(states.for.selected.timepoints, n = 1)
+  for(state in unlist(states.of.last.timepoint)){
+    transition.matrix[state, state] = 1
   }
   
   return(transition.matrix)
