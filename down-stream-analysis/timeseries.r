@@ -1,4 +1,4 @@
-cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
+time.series.cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
 
   timepoint_otus <- otus
   if (!is.null(timepoint)){
@@ -20,7 +20,7 @@ cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
   if (distance_type == "manhattan") {distance <- manhattan_dist}
   
   # cluster distances using k-medoids
-  max_nr_of_clusters <- 20
+  max_nr_of_clusters <- nrow(otus_norm) - 2
   clustering_instances <- lapply(2:max_nr_of_clusters, function(nr_of_clusters){
     kmedoids <- pam(distance, nr_of_clusters, diss = T)
     calinski_harabasz_index <- calinhara(otus_norm, kmedoids$clustering, nr_of_clusters)
@@ -28,11 +28,11 @@ cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
     list('clustering' = kmedoids$clustering, 'ch_benchmark' = calinski_harabasz_index, 'slh_benchmark' = silhouette_index)
   })
   
-  ch_benchmarks <- unlist(lapply(clustering_instances, function(instance){instance$ch_benchmark}))
-  slh_benchmarks <- unlist(lapply(clustering_instances, function(instance){instance$slh_benchmark}))
+  ch_benchmark_list <- unlist(lapply(clustering_instances, function(instance){instance$ch_benchmark}))
+  slh_benchmark_list <- unlist(lapply(clustering_instances, function(instance){instance$slh_benchmark}))
   
-  best_clustering_index_by_slh <- which(slh_benchmarks == max(slh_benchmarks))
-  best_clustering_index_by_ch <- which(ch_benchmarks == max(ch_benchmarks))
+  best_clustering_index_by_slh <- which(slh_benchmark_list == max(slh_benchmark_list))
+  best_clustering_index_by_ch <- which(ch_benchmark_list == max(ch_benchmark_list))
   
   best_nr_of_clusters_by_slh <- best_clustering_index_by_slh + 1
   best_nr_of_clusters_by_ch <- best_clustering_index_by_ch + 1
@@ -45,6 +45,9 @@ cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
                  'best.clustering_by_ch' = best_clustering_by_ch,
                  'best.nr.of.clusters_by_slh' = best_nr_of_clusters_by_slh,
                  'best.nr.of.clusters_by_ch' = best_nr_of_clusters_by_ch,
+                 'ch_benchmark_list' = ch_benchmark_list,
+                 'slh_benchmark_list' = slh_benchmark_list,
+                 
                  #'clustering.instances' = clustering_instances,
                  'distances' = distance,
                  'timepoint' = timepoint)
@@ -52,7 +55,7 @@ cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
   return (result)
 }
 
-generate.time.series <- function(timepoint_clustering_list, samples){
+timeseries.generate <- function(timepoint_clustering_list, samples){
   
   individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)}))
   timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))
