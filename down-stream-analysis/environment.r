@@ -1,6 +1,6 @@
 environment.install.missing.packages <- function(){
   
-  required.packages <- as.vector(c('ape', 'cluster', 'fpc', 'phangorn', 'GUniFrac', 'plotly', 'RColorBrewer', 'vegan'))
+  required.packages <- as.vector(c('ape', 'cluster', 'fpc', 'phangorn', 'GUniFrac', 'plotly', 'RColorBrewer', 'vegan', 'markovchain'))
 
   already.installed.packages <- installed.packages()[,"Package"]
   
@@ -21,6 +21,7 @@ environment.load.packages <- function(){
   library('plotly')
   library('RColorBrewer')
   library('vegan')
+  library('markovchain')
 }
 
 environment.load.sources <- function(){
@@ -31,7 +32,8 @@ environment.load.sources <- function(){
   source('otu.normalization.r')
   source('otu.selectors.r')
   source('plots.r')
-  source('timepoint.processing.r')
+  source('timeseries.r')
+  source('markov.r')
 }
 
 environment.load.dependencies <- function(){
