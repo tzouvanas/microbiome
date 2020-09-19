@@ -17,37 +17,40 @@ individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)
 timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))
 
 # execute analysis per timepoint
-timepoint_clustering_list <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
+clustering.per.timepoint <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
   time.series.cluster.timepoint(otus, otus.tree, timepoint, "unifrac")
 })
 
-time.series <- time.series.generate(timepoint_clustering_list, samples)
-write.table(time.series, file = paste('data/', 'time.series.txt'), sep = '')
+time.series <- time.series.generate(clustering.per.timepoint, samples)
+write.table(time.series, file = paste('data/', 'time.series.txt', sep=''))
 
-time.point.list <- c("12", "24")
+time.point.list <- c("03", "07", "24")
 transition.matrix <- markov.transition.matrix(time.series, time.point.list)
 dtmcA <- new("markovchain", transitionMatrix = transition.matrix, states = colnames(transition.matrix), name = "A") 
 plot(dtmcA)
 
-
 #########################################################################################################
-timepoint <- NULL
+timepoint <- "01"
 distance_type <- "unifrac"
-timepoint_clustering <- time.series.cluster.timepoint(otus, otus.tree, timepoint, distance_type)
+clustering.of.timepoint <- time.series.cluster.timepoint(otus, otus.tree, timepoint, distance_type)
 
-timepoint_samples <- samples
-if (!is.null(timepoint)) timepoint_samples <- samples[substr(samples, start = 5, stop = 7) == timepoint]
+samples.of.timepoint <- samples
+if (!is.null(timepoint)) samples.of.timepoint <- samples[substr(samples, start = 5, stop = 7) == timepoint]
 
-timepoint_timepoints <- timepoints
-if (!is.null(timepoint)) timepoint_timepoints <- NULL
+timepoints.of.timepoint <- timepoints
+if (!is.null(timepoint)) timepoints.of.timepoint <- timepoint
 
 # mds
-mds <- cmdscale(timepoint_clustering$distances, eig = F, k = 2)
-otuplots.plot.timepoints(mds[, 1], mds[, 2], timepoint_samples, timepoint_timepoints)
+mds <- cmdscale(clustering.of.timepoint$distances, eig = F, k = 2)
+plots.timepoints(mds[, 1], mds[, 2], samples.of.timepoint, timepoints.of.timepoint)
+plots.samples(mds[, 1], mds[, 2], samples.of.timepoint, timepoints.of.timepoint)
+plots.classification(mds[, 1], mds[, 2], clustering.of.timepoint$best.clustering_by_slh)
 
 # nmds 
-nmds <- metaMDS(timepoint_clustering$distances, k = 2)
-otuplots.plot.timepoints(nmds$points[,1], nmds$points[,2], timepoint_samples, timepoint_timepoints)
+nmds <- metaMDS(clustering.of.timepoint$distances, k = 2)
+plots.timepoints(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
+plots.samples(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
+plots.classification(nmds$points[,1], nmds$points[,2], clustering.of.timepoint$best.clustering_by_slh)
 
 
 

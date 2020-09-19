@@ -1,6 +1,30 @@
+environment.list.of.libraries <- function(){
+	return(c('ape', 
+	    'cluster', 
+	    'fpc', 
+	    'phangorn', 
+	    'GUniFrac', 
+	    'plotly', 
+	    'RColorBrewer', 
+	    'vegan', 
+	    'markovchain', 
+	    'stringr'))
+}
+
+environment.load.sources <- function(){
+  
+  # load .r code from local files
+  source('base.r')
+  source('environment.r')
+  source('otus.r')
+  source('plots.r')
+  source('time.series.r')
+  source('markov.r')
+}
+
 environment.install.missing.packages <- function(){
   
-  required.packages <- as.vector(c('ape', 'cluster', 'fpc', 'phangorn', 'GUniFrac', 'plotly', 'RColorBrewer', 'vegan', 'markovchain', 'stringr'))
+  required.packages <- as.vector(environment.list.of.libraries())
 
   already.installed.packages <- installed.packages()[,"Package"]
   
@@ -13,28 +37,15 @@ environment.install.missing.packages <- function(){
 
 environment.load.packages <- function(){
   
-  library('ape')
-  library('cluster')
-  library('fpc')
-  library('GUniFrac')
-  library('phangorn')
-  library('plotly')
-  library('RColorBrewer')
-  library('vegan')
-  library('markovchain')
-  library('stringr')
-}
+  libraryDeclaratioText <- " "
+  for(entry in environment.list.of.libraries()){
+    libraryDeclaratioText <- paste(libraryDeclaratioText, "library('", sep = "")
+    libraryDeclaratioText <- paste(libraryDeclaratioText, entry, sep = "")
+    libraryDeclaratioText <- paste(libraryDeclaratioText, "')", sep = "")
+    libraryDeclaratioText <- paste(libraryDeclaratioText, "\n", sep = "")
+  }
 
-environment.load.sources <- function(){
-  
-  # load .r code from local files
-  source('base.r')
-  source('environment.r')
-  source('otu.normalization.r')
-  source('otu.selectors.r')
-  source('plots.r')
-  source('time.series.r')
-  source('markov.r')
+  eval(parse(text=libraryDeclaratioText))
 }
 
 environment.load.dependencies <- function(){
