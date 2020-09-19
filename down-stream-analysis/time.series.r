@@ -47,8 +47,6 @@ time.series.cluster.timepoint <- function(otus, otus_tree, timepoint, distance_t
                  'best.nr.of.clusters_by_ch' = best_nr_of_clusters_by_ch,
                  'ch_benchmark_list' = ch_benchmark_list,
                  'slh_benchmark_list' = slh_benchmark_list,
-                 
-                 #'clustering.instances' = clustering_instances,
                  'distances' = distance,
                  'timepoint' = timepoint)
   

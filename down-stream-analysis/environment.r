@@ -1,6 +1,6 @@
 environment.install.missing.packages <- function(){
   
-  required.packages <- as.vector(c('ape', 'cluster', 'fpc', 'phangorn', 'GUniFrac', 'plotly', 'RColorBrewer', 'vegan', 'markovchain'))
+  required.packages <- as.vector(c('ape', 'cluster', 'fpc', 'phangorn', 'GUniFrac', 'plotly', 'RColorBrewer', 'vegan', 'markovchain', 'stringr'))
 
   already.installed.packages <- installed.packages()[,"Package"]
   
@@ -22,6 +22,7 @@ environment.load.packages <- function(){
   library('RColorBrewer')
   library('vegan')
   library('markovchain')
+  library('stringr')
 }
 
 environment.load.sources <- function(){
