@@ -33,7 +33,7 @@ environment.load.sources <- function(){
   source('otu.normalization.r')
   source('otu.selectors.r')
   source('plots.r')
-  source('timeseries.r')
+  source('time.series.r')
   source('markov.r')
 }
 
