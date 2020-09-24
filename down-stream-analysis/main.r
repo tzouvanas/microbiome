@@ -21,7 +21,7 @@ individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)
 timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))
 
 # execute analysis per timepoint
-type.of.distance <- "euclidian"
+type.of.distance <- "unifrac"
 clustering.per.timepoint <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
   time.series.cluster.timepoint(otus, otus.tree, timepoint, type.of.distance)
 })
@@ -29,7 +29,7 @@ clustering.per.timepoint <- lapply(as.vector(sort(unique(timepoints))), function
 time.series <- time.series.generate(clustering.per.timepoint, samples)
 write.table(time.series, file = paste('data/', 'time.series.txt', sep=''))
 
-time.point.list <- c("01", "24")
+time.point.list <- c("01", "05")
 transition.matrix <- markov.transition.matrix(time.series, time.point.list)
 dtmcA <- new("markovchain", transitionMatrix = transition.matrix, states = colnames(transition.matrix), name = "A") 
 plot(dtmcA)
@@ -55,6 +55,6 @@ nmds <- metaMDS(clustering.of.timepoint$distances, k = 2)
 plots.timepoints(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
 plots.samples(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
 plots.classification(nmds$points[,1], nmds$points[,2], clustering.of.timepoint$best.clustering_by_slh)
-plots.individual(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint, "016")
+plots.individual(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint, "046")
 
 

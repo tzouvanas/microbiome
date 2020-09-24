@@ -29,12 +29,22 @@ plots.classification <- function(x, y, centroid_allocations){
 
 #plot specific individual
 plots.individual <- function(x, y, samples, timepoints, individual){
+  
   individual.index <- which(startsWith(samples, paste("X", individual, sep = '')))
+  
   x.individual <- x[individual.index]
   y.individual <- y[individual.index]
+  
   individual.timepoints <- timepoints[individual.index]
   individual.samples <- samples[individual.index]
-  plots.samples(x.individual, y.individual, individual.samples, individual.timepoints)
+  
+  fig_by_sample <- plot_ly(x = x.individual, y = y.individual,
+                           text = individual.timepoints,
+                           type = "scatter", mode = "markers") %>% 
+    layout(title = individual) %>% 
+    layout(showlegend = FALSE) %>% 
+    add_text(textposition = "top right")
+  fig_by_sample
 }
   
   
