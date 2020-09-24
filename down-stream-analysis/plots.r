@@ -26,3 +26,19 @@ plots.classification <- function(x, y, centroid_allocations){
    fig_by_classification <- fig_by_classification %>% layout(title = 'Classification')
    fig_by_classification
 }
+
+#plot specific individual
+plots.individual <- function(x, y, samples, timepoints, individual){
+  individual.index <- which(startsWith(samples, paste("X", individual, sep = '')))
+  x.individual <- x[individual.index]
+  y.individual <- y[individual.index]
+  individual.timepoints <- timepoints[individual.index]
+  individual.samples <- samples[individual.index]
+  plots.samples(x.individual, y.individual, individual.samples, individual.timepoints)
+}
+  
+  
+  
+  
+  
+  
