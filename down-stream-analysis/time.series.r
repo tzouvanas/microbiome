@@ -1,4 +1,4 @@
-time.series.cluster.timepoint <- function(otus, otus_tree, timepoint, distance_type){
+time.series.cluster.timepoint <- function(otus, otus.tree, timepoint, type.of.distance){
 
   timepoint_otus <- otus
   if (!is.null(timepoint)){
@@ -6,21 +6,21 @@ time.series.cluster.timepoint <- function(otus, otus_tree, timepoint, distance_t
   }
 
   # filter out low abandancies and normalize otus
-  otus_threashold <- 0.025
+  otus_threashold <- 0
   otus_norm <- otus.normalize(timepoint_otus, otus_threashold)
 
   # distances
-  unifracs <- GUniFrac(otus_norm, midpoint(otus_tree), alpha = c(0.0, 0.5, 1.0))$unifracs
+  unifracs <- GUniFrac(otus_norm, midpoint(otus.tree), alpha = c(0.0, 0.5, 1.0))$unifracs
   unifract_dist <- as.dist(unifracs[, , "d_0.5"])
   manhattan_dist <- dist(otus_norm,  method = 'manhattan', upper = T)
   euclidian_dist <- dist(otus_norm,  method = 'euclidian', upper = T)
   
   distance <- unifract_dist
-  if (distance_type == "euclidian") {distance <- euclidian_dist}
-  if (distance_type == "manhattan") {distance <- manhattan_dist}
+  if (type.of.distance == "euclidian") {distance <- euclidian_dist}
+  if (type.of.distance == "manhattan") {distance <- manhattan_dist}
   
   # cluster distances using k-medoids
-  max_nr_of_clusters <- nrow(otus_norm) - 2
+  max_nr_of_clusters <- nrow(otus_norm) - 1
   clustering_instances <- lapply(2:max_nr_of_clusters, function(nr_of_clusters){
     kmedoids <- pam(distance, nr_of_clusters, diss = T)
     calinski_harabasz_index <- calinhara(otus_norm, kmedoids$clustering, nr_of_clusters)
@@ -32,7 +32,8 @@ time.series.cluster.timepoint <- function(otus, otus_tree, timepoint, distance_t
   slh_benchmark_list <- unlist(lapply(clustering_instances, function(instance){instance$slh_benchmark}))
   
   best_clustering_index_by_slh <- which(slh_benchmark_list == max(slh_benchmark_list))
-  best_clustering_index_by_ch <- which(ch_benchmark_list == max(ch_benchmark_list))
+  maxL <- (length(ch_benchmark_list) / 2) + 1
+  best_clustering_index_by_ch <- which(ch_benchmark_list == max(ch_benchmark_list[1:maxL]))
   
   best_nr_of_clusters_by_slh <- best_clustering_index_by_slh + 1
   best_nr_of_clusters_by_ch <- best_clustering_index_by_ch + 1
@@ -68,7 +69,7 @@ time.series.generate <- function(timepoint_clustering_list, samples){
     {
       timepoint <- timepoint_clustering$timepoint
       sample = paste('X', individual, timepoint, sep = '')
-      time_series[individual, timepoint] = timepoint_clustering$best.clustering_by_slh[sample]
+      time_series[individual, timepoint] = timepoint_clustering$best.clustering_by_ch[sample]
     }
   }
   

@@ -8,12 +8,13 @@ source('environment.r')
 environment.start()
 
 # load otu table and tree
-otus <- t(read.delim2(paste("data/", 'OTUs-Table.tab', sep = ''), header=T, sep="\t", row.names = 1))
+data.folder <- "data/with-students/"
+otus <- t(read.delim2(paste(data.folder, 'OTUs-Table.tab', sep = ''), header=T, sep="\t", row.names = 1))
 otus.contains.taxonomy.row <- tail(rownames(otus), n=1) == "taxonomy"
 if (otus.contains.taxonomy.row) {otus <- otus[1:nrow(otus)-1,]}
 mode(otus) <- "integer"
 otus <- otus[ order(row.names(otus)), ]
-otus.tree <- read.tree(paste("data/", 'OTUs-MLTree.tre', sep = ''))
+otus.tree <- read.tree(paste(data.folder, 'OTUs-NJTree.tre', sep = ''))
 
 # extract individuals, timepoints
 samples <- row.names(otus)
@@ -27,15 +28,18 @@ clustering.per.timepoint <- lapply(as.vector(sort(unique(timepoints))), function
 })
 
 time.series <- time.series.generate(clustering.per.timepoint, samples)
-write.table(time.series, file = paste('data/', 'time.series.txt', sep=''))
+write.table(time.series, file = paste(data.folder, 'time.series.txt', sep=''))
 
-time.point.list <- c("01", "05")
+time.point.list <- c("01", "07", "24", "MM")
+time.point.list <- c("01", "24")
 transition.matrix <- markov.transition.matrix(time.series, time.point.list)
 dtmcA <- new("markovchain", transitionMatrix = transition.matrix, states = colnames(transition.matrix), name = "A") 
+dtmcA.
+predict(dtmcA, newdata="01.2" , n.ahead=6)
 plot(dtmcA)
 
 #########################################################################################################
-timepoint <- NULL
+timepoint <- "MM"
 clustering.of.timepoint <- time.series.cluster.timepoint(otus, otus.tree, timepoint, type.of.distance)
 
 samples.of.timepoint <- samples
@@ -54,7 +58,12 @@ plots.classification(mds[, 1], mds[, 2], clustering.of.timepoint$best.clustering
 nmds <- metaMDS(clustering.of.timepoint$distances, k = 2)
 plots.timepoints(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
 plots.samples(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
-plots.classification(nmds$points[,1], nmds$points[,2], clustering.of.timepoint$best.clustering_by_slh)
-plots.individual(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint, "046")
+plots.classification(nmds$points[,1], nmds$points[,2], clustering.of.timepoint$best.clustering_by_ch)
+
+plots.individual(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint, "228")
+
+plot(clustering.of.timepoint$slh_benchmark_list)
+plot(clustering.of.timepoint$ch_benchmark_list)
+
 
 
