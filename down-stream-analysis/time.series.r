@@ -1,29 +1,37 @@
-time.series.cluster.timepoint <- function(otus, otus.tree, timepoint, type.of.distance){
-
-  timepoint_otus <- otus
-  if (!is.null(timepoint)){
-    timepoint_otus <- otus.all.records.for.timepoint(otus, timepoint)
+time.series.calculate.distances <- function(otus.normalized, otus.tree, distance.type = "unifrac"){
+ 
+  if (is.null(timepoints) || is.na(timepoints)) {
+    stop("time.series.cluster.timepoint() function called with empty timepoints")
+    return(NA)
   }
 
-  # filter out low abandancies and normalize otus
-  otus_threashold <- 0
-  otus_norm <- otus.normalize(timepoint_otus, otus_threashold)
-
-  # distances
-  unifracs <- GUniFrac(otus_norm, midpoint(otus.tree), alpha = c(0.0, 0.5, 1.0))$unifracs
-  unifract_dist <- as.dist(unifracs[, , "d_0.5"])
-  manhattan_dist <- dist(otus_norm,  method = 'manhattan', upper = T)
-  euclidian_dist <- dist(otus_norm,  method = 'euclidian', upper = T)
+  distance <- NULL
+  if (distance.type == "unifrac"){
+    unifracs <- GUniFrac(otus.normalized, midpoint(otus.tree), alpha = c(0.0, 0.5, 1.0))$unifracs
+    distance <- as.dist(unifracs[, , "d_0.5"])
+  }
+  else if (distance.type == "euclidian") {
+    distance <- dist(otus.normalized,  method = 'euclidian', upper = T)
+  }
+  else if (distance.type == "manhattan") {
+    distance <- dist(otus.normalized,  method = 'manhattan', upper = T)
+  } 
   
-  distance <- unifract_dist
-  if (type.of.distance == "euclidian") {distance <- euclidian_dist}
-  if (type.of.distance == "manhattan") {distance <- manhattan_dist}
+  if (is.null(distance) || is.na(distance)) {
+    stop("time.series.cluster.timepoint() function called with invalid distance type")
+    return(NA)
+  }
+  
+  return(distance)
+}
+
+time.series.cluster.timepoints <- function(otus.normalized, distances.of.timepoints, timepoint){
   
   # cluster distances using k-medoids
-  max_nr_of_clusters <- nrow(otus_norm) - 1
+  max_nr_of_clusters <- nrow(otus.normalized) - 1
   clustering_instances <- lapply(2:max_nr_of_clusters, function(nr_of_clusters){
-    kmedoids <- pam(distance, nr_of_clusters, diss = T)
-    calinski_harabasz_index <- calinhara(otus_norm, kmedoids$clustering, nr_of_clusters)
+    kmedoids <- pam(distances.of.timepoints, nr_of_clusters, diss = T)
+    calinski_harabasz_index <- calinhara(otus.normalized, kmedoids$clustering, nr_of_clusters)
     silhouette_index <- kmedoids$silinfo$avg.width
     list('clustering' = kmedoids$clustering, 'ch_benchmark' = calinski_harabasz_index, 'slh_benchmark' = silhouette_index)
   })
@@ -48,13 +56,12 @@ time.series.cluster.timepoint <- function(otus, otus.tree, timepoint, type.of.di
                  'best.nr.of.clusters_by_ch' = best_nr_of_clusters_by_ch,
                  'ch_benchmark_list' = ch_benchmark_list,
                  'slh_benchmark_list' = slh_benchmark_list,
-                 'distances' = distance,
                  'timepoint' = timepoint)
   
   return (result)
 }
 
-time.series.generate <- function(timepoint_clustering_list, samples){
+time.series.generate <- function(clustering.per.timepoint, samples){
   
   individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)}))
   timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))
@@ -63,7 +70,7 @@ time.series.generate <- function(timepoint_clustering_list, samples){
   row.names(time_series) <- unique(individuals)
   colnames(time_series) <- unique(timepoints)
   
-  for (timepoint_clustering in timepoint_clustering_list)
+  for (timepoint_clustering in clustering.per.timepoint)
   {
     for (individual in unique(individuals))
     {

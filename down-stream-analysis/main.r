@@ -9,12 +9,9 @@ environment.start()
 
 # load otu table and tree
 data.folder <- "data/with-students/"
-otus <- t(read.delim2(paste(data.folder, 'OTUs-Table.tab', sep = ''), header=T, sep="\t", row.names = 1))
-otus.contains.taxonomy.row <- tail(rownames(otus), n=1) == "taxonomy"
-if (otus.contains.taxonomy.row) {otus <- otus[1:nrow(otus)-1,]}
-mode(otus) <- "integer"
-otus <- otus[ order(row.names(otus)), ]
-otus.tree <- read.tree(paste(data.folder, 'OTUs-NJTree.tre', sep = ''))
+workload <- otus.load(data.folder, "OTUs-Table.tab", "OTUs-NJTree.tre")
+otus <- workload$otus
+otus.tree <- workload$otus.tree
 
 # extract individuals, timepoints
 samples <- row.names(otus)
@@ -22,48 +19,46 @@ individuals <- unlist(lapply(samples, function(i){substr(i, start = 2, stop = 4)
 timepoints <- unlist(lapply(samples, function(i){substr(i, start = 5, stop = 7)}))
 
 # execute analysis per timepoint
-type.of.distance <- "unifrac"
 clustering.per.timepoint <- lapply(as.vector(sort(unique(timepoints))), function(timepoint){
-  time.series.cluster.timepoint(otus, otus.tree, timepoint, type.of.distance)
+  otus.of.timepoints <- otus.all.records.for.timepoints(otus, timepoint)
+  otus.normalized <- otus.normalize(otus.of.timepoints, 0)
+  distances <- time.series.calculate.distances(otus.normalized, otus.tree)
+  time.series.cluster.timepoints(otus.normalized, distances, timepoint)
 })
 
+# generate time series from computed clusters of every timepoint 
 time.series <- time.series.generate(clustering.per.timepoint, samples)
-write.table(time.series, file = paste(data.folder, 'time.series.txt', sep=''))
+write.table(time.series, file = paste(data.folder, 'time-series.txt', sep=''))
 
-time.point.list <- c("01", "07", "24", "MM")
-time.point.list <- c("01", "24")
-transition.matrix <- markov.transition.matrix(time.series, time.point.list)
-dtmcA <- new("markovchain", transitionMatrix = transition.matrix, states = colnames(transition.matrix), name = "A") 
-dtmcA.
-predict(dtmcA, newdata="01.2" , n.ahead=6)
-plot(dtmcA)
+# generate transition matrix for selected time points
+timepoint.list <- c("01", "07")
+transition.matrix <- markov.transition.matrix(time.series, timepoint.list)
+plots.network(transition.matrix, timepoint.list)
 
 #########################################################################################################
-timepoint <- "MM"
-clustering.of.timepoint <- time.series.cluster.timepoint(otus, otus.tree, timepoint, type.of.distance)
 
-samples.of.timepoint <- samples
-if (!is.null(timepoint)) samples.of.timepoint <- samples[substr(samples, start = 5, stop = 7) == timepoint]
-
-timepoints.of.timepoint <- timepoints
-if (!is.null(timepoint)) timepoints.of.timepoint <- timepoint
+timepoint.list <- c("01", "03", "05", "07", "09", "12", "24", "MM")
+#timepoint.list <- c("MM")
+samples.of.timepoints <- samples[substr(samples, start = 5, stop = 7) %in% timepoint.list]
+otus.of.timepoints <- otus.all.records.for.timepoints(otus, timepoint.list)
+otus.normalized <- otus.normalize(otus.of.timepoints, 0)
+distances.of.timepoints <- time.series.calculate.distances(otus.normalized, otus.tree)
 
 # mds
-mds <- cmdscale(clustering.of.timepoint$distances, eig = F, k = 2)
-plots.timepoints(mds[, 1], mds[, 2], samples.of.timepoint, timepoints.of.timepoint)
-plots.samples(mds[, 1], mds[, 2], samples.of.timepoint, timepoints.of.timepoint)
-plots.classification(mds[, 1], mds[, 2], clustering.of.timepoint$best.clustering_by_slh)
+mds <- cmdscale(distances.of.timepoints, eig = F, k = 2)
+plots.timepoints(mds[, 1], mds[, 2], samples.of.timepoints, timepoints[timepoints %in% timepoint.list])
 
 # nmds 
-nmds <- metaMDS(clustering.of.timepoint$distances, k = 2)
-plots.timepoints(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
-plots.samples(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint)
-plots.classification(nmds$points[,1], nmds$points[,2], clustering.of.timepoint$best.clustering_by_ch)
+nmds <- metaMDS(distances.of.timepoints, k = 2)
 
-plots.individual(nmds$points[,1], nmds$points[,2], samples.of.timepoint, timepoints.of.timepoint, "228")
+plots.timepoints(nmds$points[,1], nmds$points[,2], samples.of.timepoints, timepoints[timepoints %in% timepoint.list])
+plots.samples(nmds$points[,1], nmds$points[,2], samples.of.timepoints, timepoints[timepoints %in% timepoint.list])
 
-plot(clustering.of.timepoint$slh_benchmark_list)
-plot(clustering.of.timepoint$ch_benchmark_list)
+plots.individual(nmds$points[,1], nmds$points[,2], samples, timepoints, "011")
+plots.individual(nmds$points[,1], nmds$points[,2], samples, timepoints, "016")
+
+clustering <- time.series.cluster.timepoints(otus.normalized, distances.of.timepoints, timepoint.list)
+plots.classification(nmds$points[,1], nmds$points[,2], centroid_allocations = clustering$best.clustering_by_ch)
 
 
 

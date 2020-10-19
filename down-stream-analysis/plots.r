@@ -47,8 +47,24 @@ plots.individual <- function(x, y, samples, timepoints, individual){
   fig_by_sample
 }
   
+plots.network <- function(transition.matrix, time.point.list){
   
+  g <- graph_from_adjacency_matrix(transition.matrix, weighted = T, mode = 'directed')
+  edge.list <- get.data.frame(g, what = 'edges')
+  node.list <- get.data.frame(g, what = 'vertices')
+
+  x <- c()
+  y <- c()
+  for (rowname in rownames(transition.matrix)){
+    timepoint <- unlist(strsplit(rowname, ".", fixed = T))[1]
+    cluster <- unlist(strsplit(rowname, ".", fixed = T))[2]
+    x <- c(x, which(timepoint == time.point.list))
+    y <- c(y, as.numeric(cluster))
+  }
+  node.list$x <- x
+  node.list$y <- y
   
-  
-  
+  new_g <- graph_from_data_frame(d = edge.list,directed = T, vertices = node.list)
+  plot(new_g, edge.label=round(edge.list$weight, 2), vertex.size=30, edge.width=round(edge.list$weight * 5, 2))
+}
   

@@ -118,12 +118,6 @@ markov.transition.matrix <- function(time.series, time.point.list = NULL){
       transition.matrix <- markov.merge.pair.transition.matrix(transition.matrix, pair.transition.matrix)
     }
   }
-
-  # adjust last timepoint
-  states.of.last.timepoint <- tail(states.for.selected.timepoints, n = 1)
-  for(state in unlist(states.of.last.timepoint)){
-    transition.matrix[state, state] = 1
-  }
   
   return(transition.matrix)
 }

@@ -7,8 +7,8 @@ environment.list.of.libraries <- function(){
 	    'plotly', 
 	    'RColorBrewer', 
 	    'vegan', 
-	    'markovchain', 
-	    'stringr'))
+	    'stringr',
+	    'igraph'))
 }
 
 environment.load.sources <- function(){
