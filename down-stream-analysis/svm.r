@@ -1,5 +1,5 @@
 # train an svm classifier for every timepoint clustering
-svm.generate.classifiers <- function(otus, clusterings, percentage=0.6){
+svm.generate.classifiers <- function(otus, clusterings, percentage=0.8, kernel='linear'){
 
   # execute analysis per timepoint
   svms <- lapply(clusterings, function(clustering){
@@ -11,7 +11,7 @@ svm.generate.classifiers <- function(otus, clusterings, percentage=0.6){
     otus.normalized <- otus.normalize(otus.of.timepoint, 0)
     
     # train a classifier for every timepoint  
-    svm.classifier <- svm.train.classifier(otus.normalized, clustering$best.clustering_by_ch, percentage)  
+    svm.classifier <- svm.train.classifier(otus.normalized, clustering$best.clustering_by_ch, percentage, kernel)  
     
     result <- list('svm' = svm.classifier, 'timepoint' = clustering$timepoint)
     
@@ -22,28 +22,53 @@ svm.generate.classifiers <- function(otus, clusterings, percentage=0.6){
 }
 
 
-svm.train.classifier <- function(data, classification, percentage, kernel='linear'){
+svm.train.classifier <- function(data, classification, percentage, kernel){
   
-  # split data into training and test set
-  nrOfTrainingSamples <- round(percentage*nrow(data), 0)
-  training.indeces <- sample(1:nrow(data), nrOfTrainingSamples, replace = F)
-                      
-  training.data.set <- data[training.indeces,]
-  training.classification.set <- classification[training.indeces]
+  unique.classification.values <- unique(classification)
   
-  validation.data.set <- data[-training.indeces,]
-  validation.classification.set <- classification[-training.indeces]
+  training.data.set <- array(dim=c(0,ncol(data)))
+  training.classification.set <- array(dim=c(0,ncol(data)))
   
+  validation.data.set <- array(dim=c(0,ncol(data)))
+  validation.classification.set <- array(dim=c(0,ncol(data)))
+  
+  # for every classification value create a training and validation set
+  # merge the results and traing the SVM
+  for(classification.value in unique.classification.values){
+  
+    classification.value.index <- classification == classification.value
+    
+    data.for.specific.value <- data[classification.value.index, ]
+    classification.for.specific.value <- classification[classification.value.index]
+    
+    # split data into training and test set
+    nrOfTrainingSamples <- round(percentage*nrow(data.for.specific.value), 0)
+    training.indeces <- sample(1:nrow(data.for.specific.value), nrOfTrainingSamples, replace = F)
+    
+    training.data.set.for.specific.value <- data.for.specific.value[training.indeces,]
+    training.classification.set.for.specific.value <- classification.for.specific.value[training.indeces]
+    
+    validation.data.set.for.specific.value <- data.for.specific.value[-training.indeces,]
+    validation.classification.set.for.specific.value <- classification.for.specific.value[-training.indeces]   
+    
+    training.data.set <- rbind(training.data.set, training.data.set.for.specific.value)
+    training.classification.set <- c(training.classification.set, training.classification.set.for.specific.value)
+    
+    validation.data.set <- rbind(validation.data.set, validation.data.set.for.specific.value)
+    validation.classification.set <- c(validation.classification.set, validation.classification.set.for.specific.value)
+  }
+
   # train SVM with training set
-  classifier <- svm(x = data, 
-                    y = classification, 
+  classifier <- svm(x = training.data.set, 
+                    y = training.classification.set, 
                     type = "C-classification",
                     kernel = kernel, 
-                    cost = 10, 
+                    cost = 1, 
                     scale = F)
   
   # validate training
   prediction.on.validation.set <- svm.predict(classifier, validation.data.set)
+  
   confusion.matrix <- table(prediction.on.validation.set, validation.classification.set)
   
   result <- list('classifier' = classifier,
