@@ -27,7 +27,7 @@ svm.classifiers <- svm.generate.classifiers(workload$otus, clusterings)
 
 # generate time series from computed clusters of every timepoint 
 time.series <- time.series.generate(clusterings, samples)
-write.table(time.series, file = paste(data.folder, 'time-series.txt', sep='')
+write.table(time.series, file = paste(data.folder, 'time-series.txt', sep=''))
 
 # generate transition matrix for selected time points
 timepoint.chain <- c("01", "07")
