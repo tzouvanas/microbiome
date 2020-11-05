@@ -6,9 +6,9 @@ environment.list.of.libraries <- function(){
 	    'GUniFrac', 
 	    'plotly', 
 	    'RColorBrewer', 
-	    'vegan', 
 	    'stringr',
-	    'igraph'))
+	    'igraph',
+	    'e1071'))
 }
 
 environment.load.sources <- function(){
@@ -20,6 +20,8 @@ environment.load.sources <- function(){
   source('plots.r')
   source('time.series.r')
   source('markov.r')
+  source('svm.r')
+  source('distances.r')
 }
 
 environment.install.missing.packages <- function(){
