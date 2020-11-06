@@ -32,6 +32,8 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
   validation.data.set <- array(dim=c(0,ncol(data)))
   validation.classification.set <- array(dim=c(0,ncol(data)))
   
+  minNrOfTrainingSamples <- nrow(data) + 1
+  
   # for every classification value create a training and validation set
   # merge the results and traing the SVM
   for(classification.value in unique.classification.values){
@@ -43,6 +45,7 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
     
     # split data into training and test set
     nrOfTrainingSamples <- round(percentage*nrow(data.for.specific.value), 0)
+    minNrOfTrainingSamples <- min(nrOfTrainingSamples, minNrOfTrainingSamples)
     training.indeces <- sample(1:nrow(data.for.specific.value), nrOfTrainingSamples, replace = F)
     
     training.data.set.for.specific.value <- data.for.specific.value[training.indeces,]
@@ -72,7 +75,8 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
   confusion.matrix <- table(prediction.on.validation.set, validation.classification.set)
   
   result <- list('classifier' = classifier,
-                 'nrOfTrainingSamples' = nrOfTrainingSamples,
+                 'nrOfTrainingSamples' = nrow(training.data.set),
+                 'minNrOfTrainingSamples' = minNrOfTrainingSamples,
                  'confusion.matrix'= confusion.matrix)
   
   return(result)

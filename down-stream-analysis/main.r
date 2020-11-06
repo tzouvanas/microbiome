@@ -8,7 +8,7 @@ source('environment.r')
 environment.start()
 
 # load otu table and tree
-data.folder <- "data/with-students/"
+data.folder <- "data/otus/infants-and-students/"
 workload <- otus.load(data.folder, "OTUs-Table.tab", "OTUs-NJTree.tre")
 
 # extract individuals, timepoints
@@ -23,7 +23,7 @@ unique.timepoints <- as.vector(sort(unique(timepoints)))
 clusterings <- time.series.generate.clusterings(workload$otus, workload$otus.tree)
 
 # generate svm classifiers for every timepoint
-svm.classifiers <- svm.generate.classifiers(workload$otus, clusterings) 
+svm.classifiers <- svm.generate.classifiers(workload$otus, clusterings, percentage = 0.6) 
 
 # generate time series from computed clusters of every timepoint 
 time.series <- time.series.generate(clusterings, samples)

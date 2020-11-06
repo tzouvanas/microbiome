@@ -1,6 +1,6 @@
 
 timepoint.list <- c("01", "03", "05", "07", "09", "12", "24", "MM")
-timepoint.list <- c("12")
+#timepoint.list <- c("24")
 samples.of.timepoints <- samples[substr(samples, start = 5, stop = 7) %in% timepoint.list]
 otus.of.timepoints <- otus.all.records.for.timepoints(workload$otus, timepoint.list)
 otus.normalized <- otus.normalize(otus.of.timepoints, 0)
