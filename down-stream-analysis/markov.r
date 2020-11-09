@@ -2,19 +2,19 @@ markov.generate.state.series <- function(time.series){
   
   column.names <- colnames(time.series)
   
-  states <- time.series
+  state.series <- time.series
   for(i in 1:nrow(time.series)){
     for(j in 1:ncol(time.series)){
       if(is.na(time.series[i,j])){
         #TODO
       }
       else{
-        states[i,j] <- paste(column.names[j], time.series[i,j], sep = '.')  
+        state.series[i,j] <- paste(column.names[j], time.series[i,j], sep = '.')  
       }
     }  
   }
   
-  return(states)
+  return(state.series)
 }
 
 markov.transition.probability <- function(state.series, from.state, to.state){

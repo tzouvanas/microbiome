@@ -8,7 +8,8 @@ environment.list.of.libraries <- function(){
 	    'RColorBrewer', 
 	    'stringr',
 	    'igraph',
-	    'e1071'))
+	    'e1071',
+	    'readxl'))
 }
 
 environment.load.sources <- function(){

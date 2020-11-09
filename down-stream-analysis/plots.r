@@ -58,13 +58,18 @@ plots.network <- function(transition.matrix, time.point.list){
   for (rowname in rownames(transition.matrix)){
     timepoint <- unlist(strsplit(rowname, ".", fixed = T))[1]
     cluster <- unlist(strsplit(rowname, ".", fixed = T))[2]
-    x <- c(x, which(timepoint == time.point.list))
+    x.value <- which(timepoint == time.point.list)
+    x <- c(x, x.value)
     y <- c(y, as.numeric(cluster))
   }
   node.list$x <- x
   node.list$y <- y
   
   new_g <- graph_from_data_frame(d = edge.list,directed = T, vertices = node.list)
-  plot(new_g, edge.label=round(edge.list$weight, 2), vertex.size=30, edge.width=round(edge.list$weight * 5, 2))
+  plot(new_g,
+       vertex.size=30, 
+       edge.label=round(edge.list$weight, 2), 
+       edge.width=round(edge.list$weight * 5, 2),
+       xlim=c(0,0))
 }
   
