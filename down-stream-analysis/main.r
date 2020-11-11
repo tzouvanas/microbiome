@@ -8,9 +8,10 @@ source('environment.r')
 environment.start()
 
 # load otu table and tree
-data.folder <- "data/zotus/infants/"
+data.folder <- "data/otus/infants/"
 workload <- otus.load(data.folder, "OTUs-Table.tab", "OTUs-NJTree.tre")
-metadata <- read_excel('meta.xlsx')
+
+metadata <- as.matrix(read_excel('data/meta.xlsx'))
 
 # extract individuals, timepoints
 samples <- row.names(workload$otus)
@@ -29,11 +30,13 @@ write.table(time.series, file = paste(data.folder, 'time-series.txt', sep=''))
 
 # generate transition matrix for selected time points
 timepoint.chain <- c("01","03","05","07")
-timepoint.chain <- c("07","09","12","24")
-timepoint.chain <- c("01","03","05","07","09","12","24")
 transition.matrix <- markov.transition.matrix(time.series, timepoint.chain)
-
 plots.network(transition.matrix, timepoint.chain)
+
+timepoint.chain <- c("07","09","12","24")
+transition.matrix <- markov.transition.matrix(time.series, timepoint.chain)
+plots.network(transition.matrix, timepoint.chain)
+
 heatmap(transition.matrix, Rowv = NA, Colv = NA, scale = 'none', symm = T)
 
 # generate svm classifiers for every timepoint
