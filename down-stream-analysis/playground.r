@@ -1,5 +1,5 @@
 timepoint.list <- c("01", "03", "05", "07", "09", "12", "24", "MM")
-timepoint.list <- c("01", "03", "05", "07", "09", "12", "24")
+timepoint.list <- c("12", "24")
 #timepoint.list <- c("01", "05", "24")
 
 #timepoint.list <- c("24")

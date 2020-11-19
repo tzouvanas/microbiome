@@ -1,8 +1,8 @@
-# train an svm classifier for every timepoint clustering
-svm.generate.classifiers <- function(otus, clusterings, percentage=0.8, kernel='linear'){
-
+# train an rf classifier for every timepoint clustering
+rf.generate.classifiers <- function(otus, clusterings, percentage=0.8, kernel='linear'){
+  
   # execute analysis per timepoint
-  svms <- lapply(clusterings, function(clustering){
+  rfs <- lapply(clusterings, function(clustering){
     
     # filter otus with timepoint
     otus.of.timepoint <- otus.all.records.for.timepoints(otus, clustering$timepoint)
@@ -11,18 +11,18 @@ svm.generate.classifiers <- function(otus, clusterings, percentage=0.8, kernel='
     otus.normalized <- otus.normalize(otus.of.timepoint, 0)
     
     # train a classifier for every timepoint  
-    svm.classifier <- svm.train.classifier(otus.normalized, clustering$best.clustering_by_ch, percentage, kernel)  
+    rf.classifier <- rf.train.classifier(otus.normalized, clustering$best.clustering_by_ch, percentage, kernel)  
     
-    result <- list('timepoint' = clustering$timepoint, 'svm' = svm.classifier)
+    result <- list('timepoint' = clustering$timepoint, 'rf' = rf.classifier)
     
     return(result)
   })
   
-  return(svms)
+  return(rfs)
 }
 
 
-svm.train.classifier <- function(data, classification, percentage, kernel){
+rf.train.classifier <- function(data, classification, percentage, kernel){
   
   # if a timepoing has (n) clusters this list contains (n) classfication values 
   unique.classification.values <- unique(classification)
@@ -38,9 +38,9 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
   training.stats <- paste(training.stats, ':', sep = '')
   
   # for every classification value create separate training and validation sets
-  # Merge them all togenter and then train the SVMs
+  # Merge them all togenter and then train the random forests
   for(classification.value in unique.classification.values){
-  
+    
     classification.value.index <- as.vector(which(classification == classification.value))
     
     nrOfTrainingSamples <- round(percentage * length(classification.value.index), 0L)
@@ -61,13 +61,13 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
     training.stats <- paste(training.stats, toString(length(training.indeces)), sep = '')
     training.stats <- paste(training.stats, '-', sep = '')
     training.stats <- paste(training.stats, toString(length(validation.indeces)), sep = '')
-
+    
     training.data.set.for.specific.value <- data[training.indeces,]
     training.classification.set.for.specific.value <- classification[training.indeces]
-   
+    
     validation.data.set.for.specific.value <- data[validation.indeces,]
     validation.classification.set.for.specific.value <- classification[validation.indeces]   
-
+    
     training.data.set <- rbind(training.data.set, training.data.set.for.specific.value)
     training.classification.set <- c(training.classification.set, training.classification.set.for.specific.value)
     
@@ -76,18 +76,15 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
     
     training.stats <- paste(training.stats, ']', sep = '')
   }
-
-  # train SVM with training set
-  classifier <- svm(x = training.data.set, 
-                    y = training.classification.set, 
-                    type = "C-classification",
-                    kernel = kernel, 
-                    cost = 1, 
-                    scale = F)
+  
+  # train random forest
+  classifier <- randomForest(x=training.data.set, 
+                             y=as.factor(training.classification.set), 
+                             ntree = 1, mtry = ncol(data), importance = T)
   
   # validate training
-  prediction.on.validation.set <- svm.predict(classifier, validation.data.set)
-  
+  prediction.on.validation.set <- rf.predict(classifier, validation.data.set)
+
   confusion.matrix <- table(prediction.on.validation.set, validation.classification.set)
   
   result <- list('classifier' = classifier,
@@ -97,7 +94,7 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
   return(result)
 }
 
-svm.predict <- function(classifier, data){
-  prediction <- predict(classifier, data)
+rf.predict <- function(classifier, data){
+  prediction <- predict(classifier, data, type='class')
   return(prediction)
 }

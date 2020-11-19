@@ -56,17 +56,21 @@ plots.network <- function(transition.matrix, time.point.list){
 
   x <- c()
   y <- c()
-  for (rowname in rownames(transition.matrix)){
+  tm.rownames <- rownames(transition.matrix)
+  for (rowname in tm.rownames){
+
     timepoint <- unlist(strsplit(rowname, ".", fixed = T))[1]
     cluster <- unlist(strsplit(rowname, ".", fixed = T))[2]
-    x.value <- which(timepoint == time.point.list)
-    x <- c(x, x.value)
-    y <- c(y, as.numeric(cluster))
+    x <- c(x, which(timepoint == time.point.list))
+    
+    rownames.of.timepoint <- tm.rownames[str_starts(tm.rownames, timepoint)]
+    y <- c(y, which(endsWith(rownames.of.timepoint, cluster)))
   }
+  
   node.list$x <- x
   node.list$y <- y
   
-  new_g <- graph_from_data_frame(d = edge.list,directed = T, vertices = node.list)
+  new_g <- graph_from_data_frame(d = edge.list, directed = T, vertices = node.list)
   plot(new_g,
        vertex.size=30, 
        edge.label=round(edge.list$weight, 2), 
@@ -74,7 +78,7 @@ plots.network <- function(transition.matrix, time.point.list){
        xlim=c(0,0))
 }
 
-plots.multi.timepoint.clustering <- function(mds, clusterings, filter=NA){
+plots.multi.timepoint.clustering <- function(mds, clusterings){
 
   rownames.of.x <- rownames(mds)
   
@@ -86,8 +90,6 @@ plots.multi.timepoint.clustering <- function(mds, clusterings, filter=NA){
     sample <- substr(i, start = 2, stop = 4)
     timepoint <- substr(i, start = 5, stop = 7)
     
-    if (is.na(filter) || timepoint %in% filter)
-    {
       clustering <- NULL
       for(j in clusterings)
         if(j$timepoint == timepoint) clustering = j
@@ -95,7 +97,7 @@ plots.multi.timepoint.clustering <- function(mds, clusterings, filter=NA){
       value <- as.integer(clustering$best.clustering_by_ch[i])
       merged.clustering.by.ch[index] = paste(timepoint, value, sep='-')
       index = index + 1
-    }
+    
   }
   
   fig_by_classification <- plot_ly(x = mds[,1], y = mds[,2], type = "scatter", mode = "markers" 

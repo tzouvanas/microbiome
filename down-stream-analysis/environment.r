@@ -9,7 +9,8 @@ environment.list.of.libraries <- function(){
 	    'stringr',
 	    'igraph',
 	    'e1071',
-	    'readxl'))
+	    'readxl',
+	    'randomForest'))
 }
 
 environment.load.sources <- function(){
@@ -23,6 +24,7 @@ environment.load.sources <- function(){
   source('markov.r')
   source('svm.r')
   source('distances.r')
+  source('random.forest.r')
 }
 
 environment.install.missing.packages <- function(){

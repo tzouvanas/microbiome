@@ -8,10 +8,11 @@ source('environment.r')
 environment.start()
 
 # load otu table and tree
-data.folder <- "data/otus/infants/"
+data.folder <- "data/otus/infants-and-students/"
 workload <- otus.load(data.folder, "OTUs-Table.tab", "OTUs-NJTree.tre")
 
 metadata <- as.matrix(read_excel('data/meta.xlsx'))
+metadata[, 'ID'] <- str_pad(str_trim(metadata[, 'ID']), 3, pad = "0")
 
 # extract individuals, timepoints
 samples <- row.names(workload$otus)
@@ -26,18 +27,18 @@ clusterings <- time.series.generate.clusterings(workload$otus, workload$otus.tre
 
 # generate time series from computed clusters of every timepoint 
 time.series <- time.series.generate(clusterings, samples)
+#time.series <- cbind( metadata[, 'Group'], time.series)
+#colnames(time.series)[1] <- '00'
+
 write.table(time.series, file = paste(data.folder, 'time-series.txt', sep=''))
 
 # generate transition matrix for selected time points
-timepoint.chain <- c("01","03","05","07")
+timepoint.chain <- c("01","09")
 transition.matrix <- markov.transition.matrix(time.series, timepoint.chain)
 plots.network(transition.matrix, timepoint.chain)
-
-timepoint.chain <- c("07","09","12","24")
-transition.matrix <- markov.transition.matrix(time.series, timepoint.chain)
-plots.network(transition.matrix, timepoint.chain)
-
-heatmap(transition.matrix, Rowv = NA, Colv = NA, scale = 'none', symm = T)
+#heatmap(transition.matrix, Rowv = NA, Colv = NA, scale = 'none', symm = T)
 
 # generate svm classifiers for every timepoint
 svm.classifiers <- svm.generate.classifiers(workload$otus, clusterings) 
+rf.classifiers <- rf.generate.classifiers(workload$otus, clusterings) 
+

@@ -76,5 +76,3 @@ time.series.generate <- function(clusterings, samples){
   
   return(time.series)
 }
-
-
