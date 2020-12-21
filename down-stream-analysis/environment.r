@@ -10,7 +10,8 @@ environment.list.of.libraries <- function(){
 	    'igraph',
 	    'e1071',
 	    'readxl',
-	    'randomForest'))
+	    'randomForest',
+	    'bnlearn'))
 }
 
 environment.load.sources <- function(){

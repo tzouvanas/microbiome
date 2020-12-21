@@ -1,4 +1,4 @@
-# train an svm classifier for every timepoint clustering
+# train an svm classifier for every timepoint
 svm.generate.classifiers <- function(otus, clusterings, percentage=0.8, kernel='linear'){
 
   # execute analysis per timepoint
@@ -41,10 +41,14 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
   # Merge them all togenter and then train the SVMs
   for(classification.value in unique.classification.values){
   
+    print(paste("Classification Value:", classification.value))
+    
     classification.value.index <- as.vector(which(classification == classification.value))
     
     nrOfTrainingSamples <- round(percentage * length(classification.value.index), 0L)
-    
+
+    print(paste("Number of training samples:", nrOfTrainingSamples))
+
     training.stats <- paste(training.stats, '[', sep = '')
     training.stats <- paste(training.stats, classification.value, sep = '')
     training.stats <- paste(training.stats, ':', sep = '')
@@ -57,6 +61,9 @@ svm.train.classifier <- function(data, classification, percentage, kernel){
       training.indeces <- sample(classification.value.index, nrOfTrainingSamples, replace = F)
       validation.indeces <- setdiff(classification.value.index, training.indeces)  
     }
+    
+    print("Training Indeces:")
+    print(paste(training.indeces, sep = ' ,'))
     
     training.stats <- paste(training.stats, toString(length(training.indeces)), sep = '')
     training.stats <- paste(training.stats, '-', sep = '')

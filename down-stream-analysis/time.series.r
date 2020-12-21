@@ -29,7 +29,8 @@ time.series.cluster.timepoint <- function(otus.normalized, distances, timepoint)
                  'best.nr.of.clusters_by_ch' = best_nr_of_clusters_by_ch,
                  'ch_benchmark_list' = ch_benchmark_list,
                  'slh_benchmark_list' = slh_benchmark_list,
-                 'timepoint' = timepoint)
+                 'timepoint' = timepoint,
+                 'distances' = distances)
   
   return (result)
 }

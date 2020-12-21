@@ -22,7 +22,7 @@ otus.normalize <- function(otus, otu_threashold){
   
   # normalize otus
   otus_norm <- min(rowSums(otus)) * otus_percentages_filtered
-  mode(otus_norm) <- "integer"
+  #mode(otus_norm) <- "integer"
   
   return(otus_norm)
 }
